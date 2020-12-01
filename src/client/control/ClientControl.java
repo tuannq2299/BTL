@@ -1,5 +1,6 @@
 package client.control;
 
+import Model.Matranhinh;
 import View.GameFrm;
 import client.model.FriendsList;
 import client.model.Users;
@@ -35,8 +36,7 @@ public class ClientControl extends Thread {
     Vector vcData;
     Vector vcHead;
     JTable tblFriends;
-    int a;
-
+   
     public Users getUser() {
         return user;
     }
@@ -45,9 +45,7 @@ public class ClientControl extends Thread {
         this.user = user;
     }
 
-    public void setA(int a) {
-        this.a = a;
-    }
+ 
 
     public void setTblFriends(JTable tblFriends) {
         this.tblFriends = tblFriends;
@@ -132,7 +130,7 @@ public class ClientControl extends Thread {
     public void run() {
         while (true) {
             try {
-                GameFrm game;
+                GameFrm game = null;
                 String rq = ois.readUTF();
                 if (rq.equals("online user")) {
                     FriendsList fl = (FriendsList) ois.readObject();
@@ -172,20 +170,34 @@ public class ClientControl extends Thread {
                 } else if(rq.equals("accept")){
 //                    System.out.println("loading game...");
                     Users u=(Users) ois.readObject();
-                    JOptionPane.showMessageDialog(tblFriends, "READY?");
-                    game = new GameFrm();
+                    //JOptionPane.showMessageDialog(tblFriends, "READY?");
+                    Matranhinh mt=(Matranhinh) ois.readObject();
+                    game = new GameFrm(mt);
                     game.setLbname("Name: "+u.getHoten());
                     game.setVisible(true);
                     game.setLocationRelativeTo(tblFriends);
+
                     while(true){
                         sleep(1000);
                         if(game.getFi_Time()!=-1){
-                            System.out.println("2");
+                            //System.out.println("2");
                             Long time=game.getFi_Time();
                             this.user.setFi_time(time);
                             sendData("Calculate",this.user);
-                            game.dispose();
-                            System.out.println("1");
+                            String rq1=ois.readUTF();
+                            if(rq1.equals("result")){
+                                String rs=(String) ois.readObject();
+                                int n=JOptionPane.showConfirmDialog (null, rs+"\nWould You Like To Play Again?","Game",JOptionPane.YES_NO_OPTION);
+                                if(n==0){
+                                    sendData("play again", this.user);
+                                    game.dispose();
+                                }
+                                else{
+                                    sendData("quit", this.user);
+                                    game.dispose();
+
+                                }
+                            }
                             break;
                         }
                     }
@@ -193,9 +205,6 @@ public class ClientControl extends Thread {
                 else if(rq.equals("not accept")){
                     Users u=(Users) ois.readObject();
                     JOptionPane.showMessageDialog(tblFriends, u.getHoten()+" has refused your challenge!");
-                }else if(rq.equals("result")){
-                    String rs=(String) ois.readObject();
-                    JOptionPane.showMessageDialog(null, rs);
                 }
 //                else if(rq.equals("Wait")){
 //                    JOptionPane.showMessageDialog(tblFriends, "Wait For the opponent...");
@@ -220,8 +229,11 @@ public class ClientControl extends Thread {
                 row.add(u.getPoints());
                 if (u.getIsOnl() == 1) {
                     row.add("Online");
-                } else {
+                } else if(u.getIsOnl() == 0){
                     row.add("Offline");
+                }
+                else{
+                    row.add("Busy");
                 }
                 vcData.add(row);
             }
@@ -231,8 +243,6 @@ public class ClientControl extends Thread {
 
     }
 
-    public ObjectOutputStream getOos() {
-        return oos;
-    }
+  
 
 }

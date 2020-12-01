@@ -22,7 +22,7 @@ import javax.swing.table.TableCellRenderer;
  *
  * @author Lenovo
  */
-public class HomepageView extends javax.swing.JFrame {
+public class HomepageView extends javax.swing.JFrame{
 
     /**
      * Creates new form HomepageView
@@ -58,6 +58,9 @@ public class HomepageView extends javax.swing.JFrame {
                 } else if (getValueAt(rowIndex, 2).toString().equalsIgnoreCase("Offline")) {
                     component.setBackground(Color.lightGray);
                 }
+                else if (getValueAt(rowIndex, 2).toString().equalsIgnoreCase("Busy")){
+                    component.setBackground(Color.RED);
+                }
 
                 return component;
             }
@@ -70,7 +73,7 @@ public class HomepageView extends javax.swing.JFrame {
         control.setTblFriends(tblF);
         control.start();
 
-        // offline event
+        // offline eventWindowAdapter()
         this.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {

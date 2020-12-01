@@ -1,5 +1,6 @@
 package server;
 
+import Model.Matranhinh;
 import client.model.Users;
 import java.io.Serializable;
 import java.sql.Connection;
@@ -8,6 +9,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,6 +48,8 @@ public class DBAccess implements Serializable {
                 u.setId(rs.getInt("id"));
                 u.setHoten(rs.getString("hoten"));
                 u.setPoints(rs.getFloat("points"));
+                u.setTotaltime(rs.getLong("totaltime"));
+                u.setGames(rs.getInt("games"));
                 String sql1 = "UPDATE users SET isOnl=1 WHERE id=?";
                 PreparedStatement ps1 = con.prepareStatement(sql1);
                 ps1.setInt(1, rs.getInt("id"));
@@ -65,13 +71,16 @@ public class DBAccess implements Serializable {
             if (rs.next()) {
                 return true;
             } else {
-                String sql1 = "INSERT INTO users(hoten,username,pass,points,isonl) VALUES(?,?,?,?,?)";
+                String sql1 = "INSERT INTO users(hoten,username,pass,points,isonl,status,games,totaltime) VALUES(?,?,?,?,?,?,?,?)";
                 PreparedStatement ps1 = con.prepareStatement(sql1);
                 ps1.setString(1, u.getHoten());
                 ps1.setString(2, u.getUsername());
                 ps1.setString(3, u.getPass());
                 ps1.setFloat(4, 0);
                 ps1.setInt(5, 0);
+                ps1.setInt(6, 0);
+                ps1.setInt(7, 0);
+                ps1.setInt(8, 0);
                 ps1.executeUpdate();
                 return false;
             }
@@ -131,6 +140,7 @@ public class DBAccess implements Serializable {
                     u3.setHoten(rs3.getString("hoten"));
                     u3.setPoints(rs3.getFloat("points"));
                     u3.setIsOnl(rs3.getInt("isOnl"));
+                    u3.setStatus(rs3.getInt("status"));
                     //System.out.println(u3.getHoten());
                     lf.add(u3);
                 }
@@ -191,6 +201,44 @@ public class DBAccess implements Serializable {
         }
         catch(Exception e){
             e.printStackTrace();
+        }
+    }
+    public void updateStatus(Users u,int status){
+        String sql = "UPDATE users SET isOnl=? WHERE hoten=?";
+        try {
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, status);
+            ps.setString(2, u.getHoten());
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void sinhngaunhien(Matranhinh mt) {
+        int sz = mt.getSz() * mt.getSz();
+        Random rd = new Random();
+
+        //Sinh ra so luong anh can thiet khong trung lap 
+        Set<Integer> setsz = new HashSet<Integer>();
+        while (setsz.size() < sz / 2) {
+            setsz.add((rd.nextInt(rd.nextInt(Integer.MAX_VALUE)) % mt.getSla()));
+        }
+
+        mt.getA().addAll(setsz);
+        mt.getA().addAll(mt.getA());
+        int id = 555;
+
+        //random lan nua de tranh doi xung
+//        for (int i = 0; i < mt.getA().size(); i++) {
+//            System.out.println(mt.getA().get(i));
+//        }
+        while (id >= 0) {
+            int x = rd.nextInt(mt.getA().size());
+            int y = rd.nextInt(mt.getA().size());
+            int tmp = mt.getA().get(x);
+            mt.getA().set(x, mt.getA().get(y));
+            mt.getA().set(y, tmp);
+            id--;
         }
     }
 }

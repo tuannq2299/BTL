@@ -1,5 +1,6 @@
 package server;
 
+import Model.Matranhinh;
 import client.model.FriendsList;
 import client.model.Users;
 import java.io.IOException;
@@ -61,8 +62,9 @@ public class ServerControl {
             String rc = ois.readUTF();
             Users u = (Users) ois.readObject();
             if (rc.equals("login")) {
+                System.out.println(u.getUsername());
                 if (db.checkUser(u)) {
-
+                    
                     Handler handler = new Handler(u, lock, ois, oos);
                     handler.setSocket(client);
                     clientMap.put(u.getHoten(), handler);
@@ -117,7 +119,7 @@ public class ServerControl {
         ObjectOutputStream oos;
         Socket socket;
         Users user;
-
+        
         public Handler(Users user, Object lock, ObjectInputStream ois, ObjectOutputStream oos) {
             this.user = user;
             this.lock = lock;
@@ -153,6 +155,7 @@ public class ServerControl {
 
         @Override
         public void run() {
+            Pair<Handler,Handler> temp_pair=null;
             while (true) {
                 try {
                     String rq = ois.readUTF();
@@ -163,8 +166,7 @@ public class ServerControl {
                         clientMap.remove(u.getHoten());
                         updateOnlineUsers();
                         break;
-                    } 
-                    
+                    }
                     else if (rq.equals("add friend")) {
                         Users thisu = (Users) ois.readObject();
                         Users u = (Users) ois.readObject();
@@ -201,12 +203,19 @@ public class ServerControl {
                     else if(rq.equals("accept")){
                         synchronized(lock){
                             Users thisu = (Users) ois.readObject();
+                            Matranhinh mt = new Matranhinh(4, 31);
+                            db.sinhngaunhien(mt);
                             Users u = (Users) ois.readObject();
                             clientMap.get(thisu.getHoten()).getOos().writeUTF("accept");
                             clientMap.get(thisu.getHoten()).getOos().writeObject(u);
+                            clientMap.get(thisu.getHoten()).getOos().writeObject(mt);
                             clientMap.get(u.getHoten()).getOos().writeUTF("accept");
                             clientMap.get(u.getHoten()).getOos().writeObject(thisu);
+                            clientMap.get(u.getHoten()).getOos().writeObject(mt);
                             pairs.add(new Pair<>(clientMap.get(thisu.getHoten()),clientMap.get(u.getHoten())));
+                            db.updateStatus(u,2);
+                            db.updateStatus(thisu, 2);
+                            updateOnlineUsers();
                         }
                         //updateOnlineUsers();
                     }
@@ -225,7 +234,7 @@ public class ServerControl {
                         synchronized(lock){
                             Users user = (Users) ois.readObject();
                             Handler temp=clientMap.get(user.getHoten());
-                            Pair<Handler,Handler> temp_pair =null;
+                            
                             for(Pair<Handler,Handler>i:pairs){
                                 if(i.getKey().getUser().getHoten().equals(temp.getUser().getHoten())){
                                     i.getKey().getUser().setFi_time(user.getFi_time());
@@ -246,7 +255,6 @@ public class ServerControl {
 //                                temp.getOos().writeUTF("Wait");
 //                                updateOnlineUsers();
 //                            }
-                                      
                             System.out.println(temp_pair.getKey().getUser().getCheck());
                             System.out.println(temp_pair.getValue().getUser().getCheck());  
                             if(temp_pair.getKey().getUser().getCheck()==1&&temp_pair.getValue().getUser().getCheck()==1){
@@ -259,8 +267,6 @@ public class ServerControl {
                                     temp_pair.getValue().oos.writeUTF("result");
                                     temp_pair.getValue().oos.writeObject("YOU LOSE");
                                     db.updatePoints(temp_pair.getKey().getUser(), 1);
-                                    
-                                    
                                     System.out.println(temp_pair.getKey().getUser().getHoten()+"win");
                                 }
                                 else if(t1>t2){
@@ -285,12 +291,63 @@ public class ServerControl {
                                 temp_pair.getValue().getUser().setFi_time(-1);
                                 temp_pair.getKey().getUser().setCheck(0);
                                 temp_pair.getValue().getUser().setCheck(0);
-                                pairs.remove(temp_pair);
-//                                System.out.println(pairs.size());
+
+//                                if(temp_pair.getKey().getUser().getCheck()==2&&temp_pair.getValue().getUser().getCheck()==2){
+//                                    temp_pair.getKey().oos.writeUTF("accept");
+//                                    temp_pair.getKey().oos.writeObject(temp_pair.getKey().getUser());
+//                                    temp_pair.getValue().oos.writeUTF("accept");
+//                                    temp_pair.getValue().oos.writeObject(temp_pair.getValue().getUser());
+//                                }
+//                                else if(temp_pair.getKey().getUser().getCheck()==3||temp_pair.getValue().getUser().getCheck()==3){
+//                                    temp_pair.getKey().oos.writeUTF("not accept");
+//                                    temp_pair.getKey().oos.writeObject(temp_pair.getKey().getUser());
+//                                    temp_pair.getValue().oos.writeUTF("not accept");
+//                                    temp_pair.getValue().oos.writeObject(temp_pair.getValue().getUser());
+//                                }
+//                                pairs.remove(temp_pair);
                             }
                             
                         }
                         
+                    }
+                    else if(rq.equals("play again")){
+                        synchronized(lock){
+                            Users user = (Users) ois.readObject();
+                            Handler temp=clientMap.get(user.getHoten());
+                            if(temp_pair.getKey().equals(temp)){
+                                temp_pair.getKey().getUser().setCheck(2);
+                            }
+                            if(temp_pair.getValue().equals(temp)){
+                                temp_pair.getValue().getUser().setCheck(2);
+                            }
+                            if(temp_pair.getKey().getUser().getCheck()==2&&temp_pair.getValue().getUser().getCheck()==2){
+                                temp_pair.getKey().oos.writeUTF("accept");
+                                temp_pair.getKey().oos.writeObject(temp_pair.getKey().getUser());
+                                temp_pair.getValue().oos.writeUTF("accept");
+                                temp_pair.getValue().oos.writeObject(temp_pair.getValue().getUser());
+                                temp_pair.getKey().getUser().setCheck(0);
+                                temp_pair.getValue().getUser().setCheck(0);
+
+                            }
+                        }
+                    }
+                    else if(rq.equals("quit")){
+                        synchronized(lock){
+                            Users user = (Users) ois.readObject();
+                            Handler temp=clientMap.get(user.getHoten());
+                            if(temp_pair.getKey().equals(temp)){
+                                temp_pair.getKey().getUser().setCheck(3);
+                            }
+                            if(temp_pair.getValue().equals(temp)){
+                                temp_pair.getValue().getUser().setCheck(3);
+                            }
+                            if(temp_pair.getKey().getUser().getCheck()==3||temp_pair.getValue().getUser().getCheck()==3){
+                                temp_pair.getKey().oos.writeUTF("not accept");
+                                temp_pair.getKey().oos.writeObject(temp_pair.getKey().getUser());
+                                temp_pair.getValue().oos.writeUTF("not accept");
+                                temp_pair.getValue().oos.writeObject(temp_pair.getValue().getUser());
+                            }
+                        }
                     }
                 } catch (IOException ex) {
                     Logger.getLogger(ServerControl.class.getName()).log(Level.SEVERE, null, ex);

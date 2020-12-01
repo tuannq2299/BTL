@@ -12,29 +12,76 @@ public class Users implements Serializable{
     private String username;
     private String pass;
     private int isOnl;
+    private int status;
     private float points;
-    private long fi_time = -1;
-    private int check=0;
-    public Users(String hoten, String username, String pass,float points) {
+    private long fi_time;
+    private int check;
+    private long totaltime;
+    private int games;
+    public Users(String hoten, String username, String pass,float points,long totaltime,int games) {
         this.hoten = hoten;
         this.username = username;
         this.pass = pass;
         this.points=points;
+        this.isOnl=0;
+        this.fi_time=-1;
+        this.check=0;
+        this.status=0;
+        this.totaltime=totaltime;
+        this.games=games;
     }
 
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    
     public Users(String username, String pass) {
         this.username = username;
         this.pass = pass;
+        this.isOnl=0;
+        this.fi_time=-1;
+        this.check=0;
+        this.status=0;
+        this.totaltime=0;
+        this.games=0;
     }
 
     public Users() {
         points=0;
+        this.isOnl=0;
+        this.fi_time=-1;
+        this.check=0;
+        this.status=0;
+        this.totaltime=0;
+        this.games=0;
     }
 
     public int getCheck() {
         return check;
     }
 
+    public long getTotaltime() {
+        return totaltime;
+    }
+
+    public void setTotaltime(long totaltime) {
+        this.totaltime = totaltime;
+    }
+
+    public int getGames() {
+        return games;
+    }
+
+    public void setGames(int games) {
+        this.games = games;
+    }
+    
+    
     public void setCheck(int check) {
         this.check = check;
     }

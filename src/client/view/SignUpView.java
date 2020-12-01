@@ -9,13 +9,12 @@ import client.view.LoginView;
  *
  * @author Lenovo
  */
-public class SignUpView extends javax.swing.JDialog {
+public class SignUpView extends javax.swing.JDialog{
 
     /**
      * Creates new form SignUpView
      */
     LoginView loginview;
-    ClientControl control;
     public SignUpView(LoginView parent, boolean modal) {
         super(parent, modal);
         this.loginview=parent;
@@ -40,7 +39,7 @@ public class SignUpView extends javax.swing.JDialog {
         signUpname = new javax.swing.JTextField();
         signUpPass = new javax.swing.JPasswordField();
         signUpUsername = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
+        btnSignUp = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -59,11 +58,11 @@ public class SignUpView extends javax.swing.JDialog {
 
         signUpUsername.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
 
-        jButton1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        jButton1.setText("SIGN UP");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        btnSignUp.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        btnSignUp.setText("SIGN UP");
+        btnSignUp.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                btnSignUpActionPerformed(evt);
             }
         });
 
@@ -74,7 +73,7 @@ public class SignUpView extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addGap(60, 60, 60)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnSignUp, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -103,18 +102,19 @@ public class SignUpView extends javax.swing.JDialog {
                     .addComponent(signUpPass, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(46, 46, 46)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btnSignUp, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(50, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void btnSignUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSignUpActionPerformed
         Users user=new Users();
         user.setHoten(signUpname.getText());
         user.setUsername(signUpUsername.getText());
         user.setPass(signUpPass.getText());
+        ClientControl control;
         control=new ClientControl();
 //        control.openConnection();
         control.sendData("signup", user);
@@ -126,7 +126,7 @@ public class SignUpView extends javax.swing.JDialog {
             JOptionPane.showMessageDialog(rootPane, rs);
         }
         control.closeConnection();
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_btnSignUpActionPerformed
     
     public void showMessage(String s){
         JOptionPane.showMessageDialog(rootPane, s);
@@ -137,7 +137,7 @@ public class SignUpView extends javax.swing.JDialog {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton btnSignUp;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
